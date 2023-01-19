@@ -1,7 +1,9 @@
 import requests
+import json
 
 class BlockAnalysis:
     def __init__(self):
+        self.config = json.load(open('config.json', 'r'))
         self.startAddress = input('[!] > Address to analyze: ')
         print()
         self.linked = [self.startAddress]
@@ -16,7 +18,7 @@ class BlockAnalysis:
             for input in txr.json()['data']['inputs']:
                 if input['address'] not in self.linked:
                     vr = requests.get(f'https://chain.so/api/v2/get_address_received/BTC/{input["address"]}')
-                    self.linkdetails[input['address']] = {'linkedfrom': address, 'linkedtxid': tx['txid'], 'txidvalue': tx['value'], 'addressvalue': float(vr.json()['data']['confirmed_received_value']) + float(vr.json()['data']['unconfirmed_received_value'])}
+                    self.linkdetails[input['address']] = {'linkedfrom': address, 'linkedtxid': tx['txid'], 'txidvalue': tx['value']}
                     self.linked.append(input['address'])
                     print(f'[+] > Address {input["address"]} linked with transaction {tx["txid"]} ({tx["value"]})')
 
@@ -27,17 +29,13 @@ class BlockAnalysis:
         for address in self.linked:
             if address not in self.processed:
                 self.getLinked(address)
-        
-        total = 0
 
         for address in self.linked[1:]:
-            total += self.linkdetails[address]['addressvalue']
             print(f'\n[+] > {address} details')
             print(f'[|] > {address} was linked from {self.linkdetails[address]["linkedfrom"]}')
             print(f'[|] > Linked with TXID {self.linkdetails[address]["linkedtxid"]}')
             print(f'[|] > TXID value of {self.linkdetails[address]["txidvalue"]}')
         
-        print(f'\n[+] This portfolio has recieved a total of {total} BTC')
         input()
             
 

@@ -1,9 +1,7 @@
 import requests
-import json
 
 class BlockAnalysis:
     def __init__(self):
-        self.config = json.load(open('config.json', 'r'))
         self.startAddress = input('[!] > Address to analyze: ')
         print()
         self.linked = [self.startAddress]
